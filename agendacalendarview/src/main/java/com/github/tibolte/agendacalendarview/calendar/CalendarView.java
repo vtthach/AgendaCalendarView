@@ -1,5 +1,15 @@
 package com.github.tibolte.agendacalendarview.calendar;
 
+import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.github.tibolte.agendacalendarview.CalendarManager;
 import com.github.tibolte.agendacalendarview.R;
 import com.github.tibolte.agendacalendarview.calendar.weekslist.WeekListView;
@@ -10,16 +20,6 @@ import com.github.tibolte.agendacalendarview.models.IWeekItem;
 import com.github.tibolte.agendacalendarview.utils.BusProvider;
 import com.github.tibolte.agendacalendarview.utils.DateHelper;
 import com.github.tibolte.agendacalendarview.utils.Events;
-
-import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -228,7 +228,7 @@ public class CalendarView extends LinearLayout {
 
     private void collapseCalendarView() {
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) getLayoutParams();
-        layoutParams.height = (int) (getResources().getDimension(R.dimen.calendar_header_height) + 2 * getResources().getDimension(R.dimen.day_cell_height));
+        layoutParams.height = (int) (getResources().getDimension(R.dimen.calendar_header_height) +1 * getResources().getDimension(R.dimen.day_cell_height));
         setLayoutParams(layoutParams);
     }
 

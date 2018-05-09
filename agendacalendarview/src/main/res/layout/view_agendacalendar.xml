@@ -9,8 +9,7 @@
     <com.github.tibolte.agendacalendarview.agenda.AgendaView
         android:id="@+id/agenda_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </com.github.tibolte.agendacalendarview.agenda.AgendaView>
+        android:layout_height="wrap_content"/>
 
     <com.github.tibolte.agendacalendarview.widgets.FloatingActionButton
         android:id="@+id/floating_action_button"
