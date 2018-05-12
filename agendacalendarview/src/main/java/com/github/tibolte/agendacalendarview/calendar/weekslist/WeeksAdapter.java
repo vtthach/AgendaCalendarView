@@ -1,20 +1,13 @@
 package com.github.tibolte.agendacalendarview.calendar.weekslist;
 
-import com.github.tibolte.agendacalendarview.CalendarManager;
-import com.github.tibolte.agendacalendarview.R;
-import com.github.tibolte.agendacalendarview.models.IDayItem;
-import com.github.tibolte.agendacalendarview.models.IWeekItem;
-import com.github.tibolte.agendacalendarview.utils.BusProvider;
-import com.github.tibolte.agendacalendarview.utils.DateHelper;
-import com.github.tibolte.agendacalendarview.utils.Events;
-
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +15,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.github.tibolte.agendacalendarview.CalendarManager;
+import com.github.tibolte.agendacalendarview.R;
+import com.github.tibolte.agendacalendarview.models.IDayItem;
+import com.github.tibolte.agendacalendarview.models.IWeekItem;
+import com.github.tibolte.agendacalendarview.utils.BusProvider;
+import com.github.tibolte.agendacalendarview.utils.DateHelper;
+import com.github.tibolte.agendacalendarview.utils.Events;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.List;
 public class WeeksAdapter extends RecyclerView.Adapter<WeeksAdapter.WeekViewHolder> {
 
     public static final long FADE_DURATION = 250;
+    private final int mMonthTextColor;
 
     private Context mContext;
     private Calendar mToday;
@@ -45,8 +47,10 @@ public class WeeksAdapter extends RecyclerView.Adapter<WeeksAdapter.WeekViewHold
         this.mToday = today;
         this.mContext = context;
         this.mDayTextColor = dayTextColor;
+        this.mMonthTextColor =  ColorUtils.setAlphaComponent(dayTextColor, 0x80);
         this.mCurrentDayColor = currentDayTextColor;
         this.mPastDayTextColor = pastDayTextColor;
+
     }
 
     // endregion
@@ -139,7 +143,7 @@ public class WeeksAdapter extends RecyclerView.Adapter<WeeksAdapter.WeekViewHold
 
                 txtMonth.setVisibility(View.GONE);
                 txtDay.setTextColor(mDayTextColor);
-                txtMonth.setTextColor(mDayTextColor);
+                txtMonth.setTextColor(mMonthTextColor);
                 circleView.setVisibility(View.GONE);
 
                 txtDay.setTypeface(null, Typeface.NORMAL);
@@ -169,10 +173,10 @@ public class WeeksAdapter extends RecyclerView.Adapter<WeeksAdapter.WeekViewHold
 
                 // Show a circle if the day is selected
                 if (dayItem.isSelected()) {
-                    txtDay.setTextColor(mDayTextColor);
+                    txtDay.setTextColor(Color.WHITE);
                     circleView.setVisibility(View.VISIBLE);
                     GradientDrawable drawable = (GradientDrawable) circleView.getBackground();
-                    drawable.setStroke((int) (1 * Resources.getSystem().getDisplayMetrics().density), mDayTextColor);
+                    drawable.setColor(Color.parseColor("#3097D4"));
                 }
 
                 // Check if the month label has to be displayed

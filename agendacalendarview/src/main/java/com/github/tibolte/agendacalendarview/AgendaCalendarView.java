@@ -5,16 +5,19 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.github.tibolte.agendacalendarview.agenda.AgendaAdapter;
 import com.github.tibolte.agendacalendarview.agenda.AgendaView;
@@ -28,6 +31,7 @@ import com.github.tibolte.agendacalendarview.models.WeekItem;
 import com.github.tibolte.agendacalendarview.render.DefaultEventRenderer;
 import com.github.tibolte.agendacalendarview.render.EventRenderer;
 import com.github.tibolte.agendacalendarview.utils.BusProvider;
+import com.github.tibolte.agendacalendarview.utils.DateHelper;
 import com.github.tibolte.agendacalendarview.utils.Events;
 import com.github.tibolte.agendacalendarview.utils.ListViewScrollTracker;
 import com.github.tibolte.agendacalendarview.widgets.FloatingActionButton;
@@ -44,12 +48,19 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public class AgendaCalendarView extends FrameLayout implements StickyListHeadersListView.OnStickyHeaderChangedListener {
 
     private static final String LOG_TAG = AgendaCalendarView.class.getSimpleName();
+    private final TextView mTopTitle;
+    private final View mTopTitleContainer;
+    private final View mTopNaviLeft;
+    private final View mTopNaviRight;
 
     private CalendarView mCalendarView;
     private AgendaView mAgendaView;
+    private View mDividerShadowView;
+    private float mCalendarDividerHeight;
     private FloatingActionButton mFloatingActionButton;
 
     private int mAgendaCurrentDayTextColor, mCalendarHeaderColor, mCalendarBackgroundColor, mCalendarDayTextColor, mCalendarPastDayTextColor, mCalendarCurrentDayColor, mFabColor;
+    private int mCalendarDividerColor;
     private CalendarPickerController mCalendarPickerController;
 
     private ListViewScrollTracker mAgendaListViewScrollTracker;
@@ -85,12 +96,35 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
     // region Constructors
 
     public AgendaCalendarView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public AgendaCalendarView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        if (attrs != null) {
+            initAttrs(attrs, context);
+        }
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.view_agendacalendar, this, true);
+        // Get view
+        mDividerShadowView = findViewById(R.id.view_shadow);
+        mTopTitle = findViewById(R.id.tvMonthTitle);
+        mTopTitleContainer = findViewById(R.id.topTitleContainer);
+        mTopNaviLeft = findViewById(R.id.mTopNaviLeft);
+        mTopNaviRight = findViewById(R.id.mTopNaviRight);
+        // Set view
+        mTopNaviLeft.setOnClickListener(v -> {
+            //TODO Navigate to priveous month?
+        });
+        mTopNaviRight.setOnClickListener(v -> {
+            //TODO Navigate to next month?
+        });
+        mTopTitleContainer.setBackgroundColor(mCalendarBackgroundColor);
+        setAlpha(0f);
+    }
 
+    private void initAttrs(AttributeSet attrs, Context context) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ColorOptionsView, 0, 0);
         mAgendaCurrentDayTextColor = a.getColor(R.styleable.ColorOptionsView_agendaCurrentDayTextColor, getResources().getColor(R.color.theme_primary));
         mCalendarHeaderColor = a.getColor(R.styleable.ColorOptionsView_calendarHeaderColor, getResources().getColor(R.color.theme_primary_dark));
@@ -98,13 +132,14 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
         mCalendarDayTextColor = a.getColor(R.styleable.ColorOptionsView_calendarDayTextColor, getResources().getColor(R.color.theme_text_icons));
         mCalendarCurrentDayColor = a.getColor(R.styleable.ColorOptionsView_calendarCurrentDayTextColor, getResources().getColor(R.color.calendar_text_current_day));
         mCalendarPastDayTextColor = a.getColor(R.styleable.ColorOptionsView_calendarPastDayTextColor, getResources().getColor(R.color.theme_light_primary));
+        mCalendarDividerColor = a.getColor(R.styleable.ColorOptionsView_calendarDividerColor, Color.GRAY);
+        mCalendarDividerHeight = a.getDimension(R.styleable.ColorOptionsView_calendarDividerHeight, getPxFromDp(2));
         mFabColor = a.getColor(R.styleable.ColorOptionsView_fabColor, getResources().getColor(R.color.theme_accent));
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.view_agendacalendar, this, true);
+    }
 
-        setAlpha(0f);
+    private float getPxFromDp(int dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     // endregion
@@ -122,6 +157,7 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
 
         mCalendarView.findViewById(R.id.cal_day_names).setBackgroundColor(mCalendarHeaderColor);
         mCalendarView.findViewById(R.id.list_week).setBackgroundColor(mCalendarBackgroundColor);
+        mCalendarView.setBackgroundColor(mCalendarBackgroundColor);
 
         mAgendaView.getAgendaListView().setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
             mCalendarPickerController.onEventSelected(CalendarManager.getInstance().getEvents().get(position));
@@ -149,7 +185,7 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
                                     mAgendaListViewScrollTracker = new ListViewScrollTracker(mAgendaView.getAgendaListView());
                                     mAgendaView.getAgendaListView().setOnScrollListener(mAgendaScrollListener);
                                     mFloatingActionButton.setOnClickListener((v) -> {
-                                        mAgendaView.translateList(0);
+                                        mAgendaView.translateList();
                                         mAgendaView.getAgendaListView().scrollToCurrentDate(CalendarManager.getInstance().getToday());
                                         new Handler().postDelayed(() -> mFloatingActionButton.hide(), fabAnimationDelay);
                                     });
@@ -182,10 +218,16 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
         if (CalendarManager.getInstance().getEvents().size() > 0) {
             CalendarEvent event = CalendarManager.getInstance().getEvents().get(position);
             if (event != null) {
+                updateTopTitle(event);
                 mCalendarView.scrollToDate(event);
                 mCalendarPickerController.onScrollToDate(event.getInstanceDay());
             }
         }
+    }
+
+    private void updateTopTitle(CalendarEvent calendarEvent) {
+        Calendar calendar = calendarEvent.getInstanceDay();
+        mTopTitle.setText(DateHelper.getDate("MMM yyyy", calendar));
     }
 
     // endregion
@@ -220,7 +262,8 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
 
         // Feed our views with weeks list and events
         mCalendarView.init(CalendarManager.getInstance(getContext()), mCalendarDayTextColor, mCalendarCurrentDayColor, mCalendarPastDayTextColor);
-
+        // Setup divider
+        setUpDivider();
         // Load agenda events and scroll to current day
         AgendaAdapter agendaAdapter = new AgendaAdapter(mAgendaCurrentDayTextColor);
         mAgendaView.getAgendaListView().setAdapter(agendaAdapter);
@@ -234,6 +277,12 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
         addEventRenderer(new DefaultEventRenderer());
     }
 
+    private void setUpDivider() {
+        mDividerShadowView.setBackgroundColor(mCalendarDividerColor);
+        mDividerShadowView.getLayoutParams().height = (int) mCalendarDividerHeight;
+        mDividerShadowView.setLayoutParams(mDividerShadowView.getLayoutParams());
+    }
+
     public void addEventRenderer(@NonNull final EventRenderer<?> renderer) {
         AgendaAdapter adapter = (AgendaAdapter) mAgendaView.getAgendaListView().getAdapter();
         adapter.addEventRenderer(renderer);
@@ -242,7 +291,7 @@ public class AgendaCalendarView extends FrameLayout implements StickyListHeaders
     public void enableCalenderView(boolean enable) {
         mAgendaView.enablePlaceholderForCalendar(enable);
         mCalendarView.setVisibility(enable ? VISIBLE : GONE);
-        mAgendaView.findViewById(R.id.view_shadow).setVisibility(enable ? VISIBLE : GONE);
+        mDividerShadowView.setVisibility(enable ? VISIBLE : GONE);
     }
 
     public void enableFloatingIndicator(boolean enable) {

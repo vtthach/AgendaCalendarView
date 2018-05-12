@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.github.tibolte.agendacalendarview.calendar.CalendarView
-        android:id="@+id/calendar_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <com.github.tibolte.agendacalendarview.agenda.AgendaView
-        android:id="@+id/agenda_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <!-- Top month and navigate buttons-->
+
+        <include layout="@layout/calendar_view_top_month" />
+
+        <com.github.tibolte.agendacalendarview.calendar.CalendarView
+            android:id="@+id/calendar_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.github.tibolte.agendacalendarview.agenda.AgendaView
+            android:id="@+id/agenda_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <com.github.tibolte.agendacalendarview.widgets.FloatingActionButton
         android:id="@+id/floating_action_button"
-        style="@style/fab"/>
+        style="@style/fab" />
 
-</merge>
+</FrameLayout>

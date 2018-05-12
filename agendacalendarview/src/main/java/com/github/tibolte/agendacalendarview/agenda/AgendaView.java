@@ -1,13 +1,10 @@
 package com.github.tibolte.agendacalendarview.agenda;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
@@ -21,6 +18,7 @@ public class AgendaView extends FrameLayout {
     private AgendaListView mAgendaListView;
     private View mShadowView;
     private boolean enablePlaceholder;
+    private boolean isExpanded = false;
 
     // region Constructors
 
@@ -53,8 +51,9 @@ public class AgendaView extends FrameLayout {
                         Events.DayClickedEvent clickedEvent = (Events.DayClickedEvent) event;
                         getAgendaListView().scrollToCurrentDate(clickedEvent.getCalendar());
                     } else if (event instanceof Events.CalendarScrolledEvent) {
-                        int offset = (int) (3 * getResources().getDimension(R.dimen.day_cell_height));
-                        translateList(offset);
+                        isExpanded = true;
+//                        int offset = (int) (4 * getResources().getDimension(R.dimen.day_cell_height));
+//                        translateList(offset);
                     } else if (event instanceof Events.EventsFetched) {
                         ((AgendaAdapter) getAgendaListView().getAdapter()).updateEvents(CalendarManager.getInstance().getEvents());
 
@@ -64,14 +63,14 @@ public class AgendaView extends FrameLayout {
                                     public void onGlobalLayout() {
                                         if (getWidth() != 0 && getHeight() != 0) {
                                             // display only two visible rows on the calendar view
-                                            if (enablePlaceholder) {
-                                                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) getLayoutParams();
-                                                int height = getHeight();
-                                                int margin = (int) (getContext().getResources().getDimension(R.dimen.calendar_header_height) + 2 * getContext().getResources().getDimension(R.dimen.day_cell_height));
-                                                layoutParams.height = height;
-                                                layoutParams.setMargins(0, margin, 0, 0);
-                                                setLayoutParams(layoutParams);
-                                            }
+//                                            if (enablePlaceholder) {
+//                                                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) getLayoutParams();
+//                                                int height = getHeight();
+//                                                int margin = (int) (getContext().getResources().getDimension(R.dimen.calendar_header_height) + getContext().getResources().getDimension(R.dimen.day_cell_height));
+//                                                layoutParams.height = height;
+//                                                layoutParams.setMargins(0, margin, 0, 0);
+//                                                setLayoutParams(layoutParams);
+//                                            }
 
                                             getAgendaListView().scrollToCurrentDate(CalendarManager.getInstance().getToday());
 
@@ -94,7 +93,7 @@ public class AgendaView extends FrameLayout {
         switch (eventaction) {
             case MotionEvent.ACTION_DOWN:
                 // if the user touches the listView, we put it back to the top
-                translateList(0);
+                translateList();
                 break;
             default:
                 break;
@@ -111,37 +110,41 @@ public class AgendaView extends FrameLayout {
         return mAgendaListView;
     }
 
-    public void translateList(int targetY) {
-        if (targetY != getTranslationY()) {
-            ObjectAnimator mover = ObjectAnimator.ofFloat(this, "translationY", targetY);
-            mover.setDuration(150);
-            mover.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    mShadowView.setVisibility(GONE);
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    if (targetY == 0) {
-                        BusProvider.getInstance().send(new Events.AgendaListViewTouchedEvent());
-                    }
-                    mShadowView.setVisibility(VISIBLE);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-            mover.start();
+    public void translateList() {
+        if (isExpanded) {
+            isExpanded = false;
+            BusProvider.getInstance().send(new Events.AgendaListViewTouchedEvent());
         }
+//        if (targetY != getTranslationY()) {
+//            ObjectAnimator mover = ObjectAnimator.ofFloat(this, "translationY", targetY);
+//            mover.setDuration(150);
+//            mover.addListener(new Animator.AnimatorListener() {
+//                @Override
+//                public void onAnimationStart(Animator animation) {
+//                    mShadowView.setVisibility(GONE);
+//                }
+//
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    if (targetY == 0) {
+//                        BusProvider.getInstance().send(new Events.AgendaListViewTouchedEvent());
+//                    }
+//                    mShadowView.setVisibility(VISIBLE);
+//                }
+//
+//                @Override
+//                public void onAnimationCancel(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationRepeat(Animator animation) {
+//
+//                }
+//            });
+//            mover.start();
     }
+
 
     public void enablePlaceholderForCalendar(boolean enable) {
         this.enablePlaceholder = enable;

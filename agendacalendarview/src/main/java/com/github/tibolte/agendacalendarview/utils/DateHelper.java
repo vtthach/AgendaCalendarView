@@ -1,10 +1,10 @@
 package com.github.tibolte.agendacalendarview.utils;
 
+import android.content.Context;
+
 import com.github.tibolte.agendacalendarview.CalendarManager;
 import com.github.tibolte.agendacalendarview.R;
 import com.github.tibolte.agendacalendarview.models.IWeekItem;
-
-import android.content.Context;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -129,6 +129,11 @@ public class DateHelper {
             yearLessDate = yearLessDate.substring(0, yearLessDate.length() - 1);
         }
         return yearLessDate;
+    }
+
+    public static String getDate(String format, Calendar calendar) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
+        return simpleDateFormat.format(calendar.getTime());
     }
 
     // endregion

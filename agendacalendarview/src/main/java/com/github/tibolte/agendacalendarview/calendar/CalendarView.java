@@ -91,8 +91,8 @@ public class CalendarView extends LinearLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        mDayNamesHeader = (LinearLayout) findViewById(R.id.cal_day_names);
-        mListViewWeeks = (WeekListView) findViewById(R.id.list_week);
+        mDayNamesHeader = findViewById(R.id.cal_day_names);
+        mListViewWeeks = findViewById(R.id.list_week);
         mListViewWeeks.setLayoutManager(new LinearLayoutManager(getContext()));
         mListViewWeeks.setHasFixedSize(true);
         mListViewWeeks.setItemAnimator(null);
@@ -150,7 +150,7 @@ public class CalendarView extends LinearLayout {
      * @param calendarEvent The event for the selected position in the agenda listview.
      */
     public void scrollToDate(final CalendarEvent calendarEvent) {
-        mListViewWeeks.post(()->scrollToPosition(updateSelectedDay(calendarEvent.getInstanceDay(), calendarEvent.getDayReference())));
+        mListViewWeeks.post(() -> scrollToPosition(updateSelectedDay(calendarEvent.getInstanceDay(), calendarEvent.getDayReference())));
     }
 
     public void scrollToDate(Calendar today, List<IWeekItem> weeks) {
@@ -228,7 +228,7 @@ public class CalendarView extends LinearLayout {
 
     private void collapseCalendarView() {
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) getLayoutParams();
-        layoutParams.height = (int) (getResources().getDimension(R.dimen.calendar_header_height) +1 * getResources().getDimension(R.dimen.day_cell_height));
+        layoutParams.height = (int) (getResources().getDimension(R.dimen.calendar_header_height) + 1 * getResources().getDimension(R.dimen.day_cell_height));
         setLayoutParams(layoutParams);
     }
 

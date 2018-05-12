@@ -16,11 +16,13 @@
         android:id="@+id/agenda_calendar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        agendaCalendar:calendarDividerHeight="2dp"
+        agendaCalendar:calendarDividerColor="@color/yellow"
         agendaCalendar:agendaCurrentDayTextColor="@color/theme_primary"
         agendaCalendar:calendarColor="@android:color/white"
-        agendaCalendar:calendarCurrentDayTextColor="@color/calendar_text_current_day"
-        agendaCalendar:calendarDayTextColor="@color/theme_primary"
-        agendaCalendar:calendarHeaderColor="@color/theme_primary_dark"
+        agendaCalendar:calendarCurrentDayTextColor="@android:color/black"
+        agendaCalendar:calendarDayTextColor="@android:color/black"
+        agendaCalendar:calendarHeaderColor="@android:color/white"
         agendaCalendar:calendarPastDayTextColor="@android:color/darker_gray"
         agendaCalendar:fabColor="@color/theme_accent" />
 
